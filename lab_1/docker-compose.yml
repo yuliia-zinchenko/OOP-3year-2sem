@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: library-postgres
+    environment:
+      POSTGRES_DB: library
+      POSTGRES_USER: library
+      POSTGRES_PASSWORD: library
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: library-keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+
+  tomcat:
+    image: tomcat:10.1-jdk17
+    container_name: library-tomcat
+    depends_on: [postgres, keycloak]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/target/library.war:/usr/local/tomcat/webapps/library.war
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/library
+      DB_USER: library
+      DB_PASSWORD: library
+      JWT_ISSUER: http://localhost:8081/realms/library
+      JWT_JWKS_URL: http://keycloak:8080/realms/library/protocol/openid-connect/certs
+
+volumes:
+  pgdata:

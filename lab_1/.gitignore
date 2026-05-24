@@ -1,0 +1,14 @@
+target/
+build/
+*.class
+*.war
+*.jar
+.idea/
+.vscode/
+*.iml
+node_modules/
+dist/
+.env
+.DS_Store
+Pulumi.*.yaml
+!Pulumi.yaml

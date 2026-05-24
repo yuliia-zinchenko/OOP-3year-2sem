@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="001-users" author="lab2">
+        <createTable tableName="users">
+            <column name="id" type="BIGSERIAL"><constraints primaryKey="true"/></column>
+            <column name="sub" type="VARCHAR(128)"><constraints nullable="false" unique="true"/></column>
+            <column name="email" type="VARCHAR(255)"><constraints nullable="false" unique="true"/></column>
+            <column name="full_name" type="VARCHAR(255)"/>
+            <column name="role" type="VARCHAR(32)" defaultValue="READER"><constraints nullable="false"/></column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-authors" author="lab2">
+        <createTable tableName="authors">
+            <column name="id" type="BIGSERIAL"><constraints primaryKey="true"/></column>
+            <column name="full_name" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="country" type="VARCHAR(64)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-books" author="lab2">
+        <createTable tableName="books">
+            <column name="id" type="BIGSERIAL"><constraints primaryKey="true"/></column>
+            <column name="title" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="isbn" type="VARCHAR(32)"><constraints unique="true"/></column>
+            <column name="year" type="INT"/>
+            <column name="total_copies" type="INT" defaultValueNumeric="1"><constraints nullable="false"/></column>
+            <column name="available_copies" type="INT" defaultValueNumeric="1"><constraints nullable="false"/></column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-book-authors" author="lab2">
+        <createTable tableName="book_authors">
+            <column name="book_id" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="author_id" type="BIGINT"><constraints nullable="false"/></column>
+        </createTable>
+        <addPrimaryKey tableName="book_authors" columnNames="book_id, author_id"/>
+        <addForeignKeyConstraint baseTableName="book_authors" baseColumnNames="book_id"
+                                 constraintName="fk_ba_book"
+                                 referencedTableName="books" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="book_authors" baseColumnNames="author_id"
+                                 constraintName="fk_ba_author"
+                                 referencedTableName="authors" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="001-loans" author="lab2">
+        <createTable tableName="loans">
+            <column name="id" type="BIGSERIAL"><constraints primaryKey="true"/></column>
+            <column name="user_id" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="book_id" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="librarian_id" type="BIGINT"/>
+            <column name="status" type="VARCHAR(16)" defaultValue="ORDERED"><constraints nullable="false"/></column>
+            <column name="type" type="VARCHAR(16)"/>
+            <column name="ordered_at" type="TIMESTAMP" defaultValueComputed="now()"><constraints nullable="false"/></column>
+            <column name="issued_at" type="TIMESTAMP"/>
+            <column name="due_at" type="TIMESTAMP"/>
+            <column name="returned_at" type="TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="loans" baseColumnNames="user_id"
+                                 constraintName="fk_loans_user"
+                                 referencedTableName="users" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="loans" baseColumnNames="book_id"
+                                 constraintName="fk_loans_book"
+                                 referencedTableName="books" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="loans" baseColumnNames="librarian_id"
+                                 constraintName="fk_loans_librarian"
+                                 referencedTableName="users" referencedColumnNames="id"/>
+        <createIndex tableName="loans" indexName="loans_user_idx">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="loans" indexName="loans_status_idx">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

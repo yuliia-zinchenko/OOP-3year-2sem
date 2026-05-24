@@ -1,0 +1,27 @@
+stages: [build, deploy]
+
+backend:
+  stage: build
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - cd backend && mvn -B package
+  artifacts:
+    paths: [backend/target/library.war]
+
+frontend:
+  stage: build
+  image: node:20
+  script:
+    - cd frontend && npm ci || npm install
+    - cd frontend && npm run build
+  artifacts:
+    paths: [frontend/dist]
+
+deploy:
+  stage: deploy
+  image: pulumi/pulumi-nodejs:latest
+  only: [main]
+  script:
+    - cd infra/pulumi && npm install
+    - pulumi stack select prod
+    - pulumi up --yes

@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: library2-postgres
+    environment:
+      POSTGRES_DB: library
+      POSTGRES_USER: library
+      POSTGRES_PASSWORD: library
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: library2-keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+
+  backend:
+    build: ./backend
+    container_name: library2-backend
+    depends_on: [postgres, keycloak]
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/library
+      DB_USER: library
+      DB_PASSWORD: library
+      JWT_PROVIDER: keycloak
+      JWT_ISSUER_URI: http://localhost:8081/realms/library
+      JWT_JWKS_URI: http://keycloak:8080/realms/library/protocol/openid-connect/certs
+      CORS_ORIGINS: http://localhost:3000
+
+volumes:
+  pgdata:

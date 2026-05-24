@@ -1,0 +1,3 @@
+name: library-infra
+runtime: nodejs
+description: AWS ECS Fargate deployment for Library System

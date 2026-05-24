@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="002-authors" author="lab2">
+        <insert tableName="authors">
+            <column name="full_name" value="Тарас Шевченко"/>
+            <column name="country" value="Ukraine"/>
+        </insert>
+        <insert tableName="authors">
+            <column name="full_name" value="Леся Українка"/>
+            <column name="country" value="Ukraine"/>
+        </insert>
+        <insert tableName="authors">
+            <column name="full_name" value="George Orwell"/>
+            <column name="country" value="UK"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002-books" author="lab2">
+        <insert tableName="books">
+            <column name="title" value="Кобзар"/>
+            <column name="isbn" value="978-1"/>
+            <column name="year" valueNumeric="1840"/>
+            <column name="total_copies" valueNumeric="3"/>
+            <column name="available_copies" valueNumeric="3"/>
+        </insert>
+        <insert tableName="books">
+            <column name="title" value="Лісова пісня"/>
+            <column name="isbn" value="978-2"/>
+            <column name="year" valueNumeric="1911"/>
+            <column name="total_copies" valueNumeric="2"/>
+            <column name="available_copies" valueNumeric="2"/>
+        </insert>
+        <insert tableName="books">
+            <column name="title" value="1984"/>
+            <column name="isbn" value="978-3"/>
+            <column name="year" valueNumeric="1949"/>
+            <column name="total_copies" valueNumeric="5"/>
+            <column name="available_copies" valueNumeric="5"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002-book-authors" author="lab2">
+        <sql>
+            INSERT INTO book_authors(book_id, author_id)
+            SELECT b.id, a.id FROM books b, authors a
+            WHERE (b.title='Кобзар' AND a.full_name='Тарас Шевченко')
+               OR (b.title='Лісова пісня' AND a.full_name='Леся Українка')
+               OR (b.title='1984' AND a.full_name='George Orwell');
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,40 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /library
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/library}
+    username: ${DB_USER:library}
+    password: ${DB_PASSWORD:library}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+        format_sql: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Keycloak issuer by default; switch to Auth0 by overriding env vars.
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8081/realms/library}
+          jwk-set-uri: ${JWT_JWKS_URI:http://localhost:8081/realms/library/protocol/openid-connect/certs}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
+  jwt:
+    # which strategy to use to map JWT -> roles: keycloak | auth0
+    provider: ${JWT_PROVIDER:keycloak}
+    auth0-roles-claim: ${AUTH0_ROLES_CLAIM:https://library.app/roles}
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.library: DEBUG
